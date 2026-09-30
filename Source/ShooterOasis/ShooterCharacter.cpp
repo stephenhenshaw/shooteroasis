@@ -23,6 +23,10 @@ AShooterCharacter::AShooterCharacter()
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 	PlayerCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationPitch = true;
+	bUseControllerRotationRoll = false;
+
 }
 
 // Called when the game starts or when spawned
@@ -60,6 +64,20 @@ void AShooterCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
+void AShooterCharacter::Turn(const FInputActionValue& Value)
+{
+	const FVector2D TurnVector = Value.Get<FVector2D>();
+	const float TurnScaleFactor = 1.0f;
+	AddControllerYawInput(TurnVector.X * TurnScaleFactor);
+}
+
+void AShooterCharacter::LookUp(const FInputActionValue& Value)
+{
+	const FVector2D LookUpVector = Value.Get<FVector2D>();
+	const float LookUpScaleFactor = 1.0f;
+	AddControllerPitchInput(LookUpVector.Y * LookUpScaleFactor);
+}
+
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 {
@@ -75,6 +93,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Move);
+		EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Triggered, this, &AShooterCharacter::LookUp);
+		EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Turn);
 	}
 }
 
