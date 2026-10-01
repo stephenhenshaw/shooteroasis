@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputAction.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -18,14 +19,21 @@ AShooterCharacter::AShooterCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character
+	CameraBoom->bUsePawnControlRotation = true;
 
 	// Create a camera and attach to boom
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 	PlayerCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	PlayerCamera->bUsePawnControlRotation = false;
 
-	bUseControllerRotationYaw = true;
+	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationRoll = false;
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f);
+	GetCharacterMovement()->JumpZVelocity = 500.f;
+	GetCharacterMovement()->AirControl = 0.2f;
 
 }
 
@@ -64,18 +72,14 @@ void AShooterCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
-void AShooterCharacter::Turn(const FInputActionValue& Value)
+void AShooterCharacter::LookAround(const FInputActionValue& Value)
 {
-	const FVector2D TurnVector = Value.Get<FVector2D>();
+	const FVector2D LookAroundVector = Value.Get<FVector2D>();
 	const float TurnScaleFactor = 1.0f;
-	AddControllerYawInput(TurnVector.X * TurnScaleFactor);
-}
+	AddControllerYawInput(LookAroundVector.X * TurnScaleFactor);
 
-void AShooterCharacter::LookUp(const FInputActionValue& Value)
-{
-	const FVector2D LookUpVector = Value.Get<FVector2D>();
 	const float LookUpScaleFactor = 1.0f;
-	AddControllerPitchInput(LookUpVector.Y * LookUpScaleFactor);
+	AddControllerPitchInput(LookAroundVector.Y * LookUpScaleFactor);
 }
 
 // Called every frame
@@ -93,8 +97,10 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Move);
-		EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Triggered, this, &AShooterCharacter::LookUp);
-		EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Turn);
+		EnhancedInputComponent->BindAction(LookAroundAction, ETriggerEvent::Triggered, this, &AShooterCharacter::LookAround);
+		
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AShooterCharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AShooterCharacter::StopJumping);
 	}
 }
 
