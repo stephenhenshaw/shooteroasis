@@ -7,6 +7,11 @@
 #include "InputActionValue.h"
 #include "ShooterCharacter.generated.h"
 
+class UInputMappingContext;
+class UInputAction;
+class USpringArmComponent;
+class UCameraComponent;
+
 UCLASS()
 class SHOOTEROASIS_API AShooterCharacter : public ACharacter
 {
@@ -22,19 +27,19 @@ protected:
 
 	// Default Player Mapping Context
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	class UInputMappingContext* PlayerMappingContext;
+	TObjectPtr<UInputMappingContext> PlayerMappingContext = nullptr;
 
 	// Input Action Move
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	class UInputAction* MoveAction;
+	TObjectPtr<UInputAction> MoveAction = nullptr ;
 
 	// Action to turn - yaw and look up and down together
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* LookAroundAction;
+	TObjectPtr<UInputAction> LookAroundAction = nullptr;
 
 	// Action to jump
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* JumpAction;
+	TObjectPtr<UInputAction> JumpAction = nullptr;
 
 	// Function to move in all directions
 	void Move(const FInputActionValue& Value);
@@ -53,11 +58,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CameraSet, meta = (AllowPrivateAccess = "true"))
 	/* Camera boom positioning the camera behind the character */
-	class USpringArmComponent* CameraBoom;
+	TObjectPtr<USpringArmComponent> CameraBoom = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CameraSet, meta = (AllowPrivateAccess = "true"))
 	/* Player camera */
-	class UCameraComponent* PlayerCamera;
+	TObjectPtr<UCameraComponent> PlayerCamera = nullptr;
 
 public:
 
