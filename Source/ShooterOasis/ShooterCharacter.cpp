@@ -8,6 +8,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputAction.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -26,8 +28,8 @@ AShooterCharacter::AShooterCharacter()
 	PlayerCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	PlayerCamera->bUsePawnControlRotation = false;
 
-	bUseControllerRotationYaw = true;
-	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationPitch = true;
 	bUseControllerRotationRoll = false;
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -82,6 +84,21 @@ void AShooterCharacter::LookAround(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAroundVector.Y * LookUpScaleFactor);
 }
 
+void AShooterCharacter::ShootButtonPressed()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Shoot button pressed"));
+
+	if (ShootSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ShootSound, GetActorLocation());
+	}
+}
+
+void AShooterCharacter::ShootButtonReleased()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Shoot button released"));
+}
+
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 {
@@ -101,6 +118,9 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AShooterCharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AShooterCharacter::StopJumping);
+
+		EnhancedInputComponent->BindAction(ShootStartAction, ETriggerEvent::Triggered, this, &AShooterCharacter::ShootButtonPressed);
+		EnhancedInputComponent->BindAction(ShootEndAction, ETriggerEvent::Triggered, this, &AShooterCharacter::ShootButtonReleased);
 	}
 }
 

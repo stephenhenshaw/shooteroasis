@@ -41,11 +41,28 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> JumpAction = nullptr;
 
+	// Action when start shooting
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> ShootStartAction = nullptr;
+
+	// Action when ending shooting
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> ShootEndAction = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USoundCue> ShootSound = nullptr;
+
 	// Function to move in all directions
 	void Move(const FInputActionValue& Value);
 
 	// Look up or down based on yaw by using mouse y movement or right gamepad y movement
 	void LookAround(const FInputActionValue& Value);
+
+	// Method call when shooting a weapon
+	void ShootButtonPressed();
+
+	// Method call when releasing shooting button
+	void ShootButtonReleased();
 
 public:	
 	// Called every frame
